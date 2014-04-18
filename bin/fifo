@@ -123,10 +123,6 @@ Thread.new do
 end
 
 def channels_for_repo(repo)
-  if $config["mute"]
-    return []
-  end
-
   filters = Optional.new($config["filters"])
 
   Many.new($config["irc"]["channels"]).
