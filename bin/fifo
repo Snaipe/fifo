@@ -145,7 +145,15 @@ configure do
 end
 
 get "/" do
-  "Fifo lives here. Direct your hooks to /github/push."
+  "<pre>Fifo lives here. Direct your hooks to /github/push.\n\n" +
+  "      # #\n" +
+  "     #\n" +
+  "    ||\n" +
+  " /----\\\n" +
+  "/      \\\n" +
+  "| [x]  |\n" +
+  "|_|_|__|\n" +
+  "</pre>"
 end
 
 def json_to_date(timestamp)
