@@ -15,6 +15,17 @@ end
 
 $config = YAML.load_file config_file
 
+class Puns
+  include Cinch::Plugin
+
+  prefix /^(c|k)ri/
+  match /(.+)/
+
+  def execute(m, query)
+    m.reply(query.upcase + '!')
+  end
+end
+
 $bot = Cinch::Bot.new do
   configure do |c|
     c.nick = $config["irc"]["nick"]
@@ -23,6 +34,7 @@ $bot = Cinch::Bot.new do
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
+    c.plugins.plugins = [Puns]
   end
 end
 
@@ -49,7 +61,7 @@ get "/" do
   "GitBot lives here. Direct your hooks to /github."
 end
 
-post "/github" do
+post "/github/push" do
   p params[:payload]
   push = JSON.parse(params[:payload])
 
