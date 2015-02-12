@@ -77,7 +77,7 @@ end
 
 def say(repo,msg)
   $config["irc"]["channels"].each do |chan|
-    unless $config["filters"].include? chan and not $config["filters"][chan].include? repo
+    unless $config["filters"] and $config["filters"].include? chan and not $config["filters"][chan].include? repo
       $bot.Channel(chan).send msg
     end
   end
