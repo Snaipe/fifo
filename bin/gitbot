@@ -115,17 +115,25 @@ post "/github/push" do
     rescue ArgumentError
       tb = Time.at(b["timestamp"].to_i)
     end
-    
+
     ta <=> tb
   end
 
+  include Cinch::Formatting
+
   # output first 3 commits
   push["commits"][0..2].each do |c|
-    say repo, "\0030#{repo}:\0037 #{branch}\0033 #{c["author"]["name"]}\003 #{c["message"]}"
+    reply = "[%s/%s] %s - %s: %s" %
+      [Format(:blue, ""),
+       Format(:blue, branch),
+       Format(:green, ""),
+       Format(:red, c["author"]["name"]),
+       Format(:orange, c["message"])]
+    say repo, reply
   end
 
   if push["commits"].length-2 > 0
-    say repo, "\0030#{repo}:\0037 #{branch}\003 ... and #{push["commits"].length-2} more"
+    say repo, " ... and #{push["commits"].length-2} more"
   end
 
   push.inspect
