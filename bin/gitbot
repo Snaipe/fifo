@@ -95,8 +95,8 @@ get "/" do
 end
 
 post "/github/push" do
-  p params[:payload]
-  push = JSON.parse(params[:payload])
+  request.body.rewind
+  push = JSON.parse request.body.read
 
   repo = push["repository"]["name"]
   branch = push["ref"].gsub(/^refs\/heads\//,"")
