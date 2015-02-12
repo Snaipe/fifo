@@ -15,26 +15,59 @@ end
 
 $config = YAML.load_file config_file
 
+class Quoi
+  include Cinch::Plugin
+
+  set :prefix, ''
+  match /\s*quoi[?!]*\s*/i
+  def execute(m)
+    m.reply("ffeur")
+  end
+end
+
 class Puns
   include Cinch::Plugin
 
-  prefix /^(c|k)ri/
-  match /(.+)/
+  set :prefix, ''
+  match /^(.*\s)?(cri|kri|dit |di)(\w+).*/i
 
-  def execute(m, query)
-    m.reply(query.upcase + '!')
+  def execute(m, unused, prefix, trail)
+    if prefix and trail
+      if prefix.match /^(cri|kri)$/i
+        msg = trail.upcase + '!'
+      else
+        msg = trail
+      end
+      m.reply(msg)
+    end
+  end
+end
+
+class GTFO
+  include Cinch::Plugin
+
+  set :prefix, /^fifo:/i
+  match /.*(ta gueule|la ferme|fuck you|connard|encul|foutre).*/i
+
+  def execute(m, match)
+    ["Dear #{m.user},", " ",
+     "kindly go fuck yourself.", " ",
+     "Sincerely,", " ",
+     "-- ", "fifo"].each do |msg|
+      m.reply(msg)
+    end
   end
 end
 
 $bot = Cinch::Bot.new do
   configure do |c|
     c.nick = $config["irc"]["nick"]
-    c.user = "gitbot"
-    c.realname = "GitBot"
+    c.user = "fifo"
+    c.realname = "FIFO"
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
-    c.plugins.plugins = [Puns]
+    c.plugins.plugins = [Puns, Quoi, GTFO]
   end
 end
 
@@ -58,7 +91,7 @@ configure do
 end
 
 get "/" do
-  "GitBot lives here. Direct your hooks to /github."
+  "GitBot lives here. Direct your hooks to /github/push."
 end
 
 post "/github/push" do
