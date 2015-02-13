@@ -67,14 +67,11 @@ $bot = Cinch::Bot.new do
     c.nick = $config["irc"]["nick"]
     c.user = "fifo"
     c.realname = "FIFO"
+    c.password = $config["irc"]["password"]
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
-    c.plugins.plugins = [Cinch::Plugins::Identify, Puns, Quoi, GTFO]
-    c.plugins.options[Cinch::Plugins::Identify] = {
-      :password => $config["irc"]["password"],
-      :type     => :nickserv,
-    }
+    c.plugins.plugins = [Puns, Quoi, GTFO]
   end
 end
 
@@ -98,7 +95,15 @@ configure do
 end
 
 get "/" do
-  "GitBot lives here. Direct your hooks to /github/push."
+  "Fifo lives here. Direct your hooks to /github/push."
+end
+
+def json_to_date(timestamp)
+  begin
+    DateTime.parse(timestamp)
+  rescue ArgumentError
+    Time.at(timestamp.to_i)
+  end
 end
 
 post "/github/push" do
@@ -110,20 +115,8 @@ post "/github/push" do
 
   # sort commits by timestamp
   push["commits"].sort! do |a,b|
-    ta = tb = nil
-    begin
-      ta = DateTime.parse(a["timestamp"])
-    rescue ArgumentError
-      ta = Time.at(a["timestamp"].to_i)
-    end
-
-    begin
-      tb = DateTime.parse(b["timestamp"])
-    rescue ArgumentError
-      tb = Time.at(b["timestamp"].to_i)
-    end
-
-    ta <=> tb
+    (ta, tb) = [a, b].map { |e| json_to_date(e["timestamp"]) }
+    tb <=> ta
   end
 
   nb_commits = push["commits"].length
@@ -149,5 +142,5 @@ post "/github/push" do
     say repo, " ... and #{nb_commits - 3} more"
   end
 
-  push.inspect
+  ""
 end
