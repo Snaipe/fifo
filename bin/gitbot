@@ -70,7 +70,11 @@ $bot = Cinch::Bot.new do
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
-    c.plugins.plugins = [Puns, Quoi, GTFO]
+    c.plugins.plugins = [Cinch::Plugins::Identify, Puns, Quoi, GTFO]
+    c.plugins.options[Cinch::Plugins::Identify] = {
+      :password => $config["irc"]["password"],
+      :type     => :nickserv,
+    }
   end
 end
 
