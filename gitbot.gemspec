@@ -28,7 +28,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<cinch>, ["~> 2.2.4"])
   s.add_runtime_dependency(%q<sinatra>, ["~> 1.4.5"])
   s.add_runtime_dependency(%q<json>, [">= 0"])
-  
+  s.add_runtime_dependency(%q<googl>, ["~> 0.7.0"])
+
   s.add_development_dependency(%q<bundler>, ["~> 1.8.0"])
 
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.1")

@@ -5,6 +5,7 @@ require "cinch"
 require "sinatra"
 require "yaml"
 require "json"
+require "googl"
 
 config_file = ARGV.shift || "config.yml"
 if not File.exists? config_file
@@ -123,12 +124,13 @@ post "/github/push" do
 
   # output first 3 commits
   push["commits"][0..2].each do |c|
-    reply = "[%s/%s] %s - %s: %s" %
-      [Format(:blue, ""),
+    reply = "[%s/%s] %s - %s: %s <%s>" %
+      [Format(:blue, c["id"][0..6]),
        Format(:blue, branch),
        Format(:green, ""),
        Format(:red, c["author"]["name"]),
-       Format(:orange, c["message"])]
+       Format(:orange, c["message"]),
+       Format(:red, Googl.shorten(c["url"]))]
     say repo, reply
   end
 
