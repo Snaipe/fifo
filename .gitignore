@@ -1,9 +1,13 @@
-config.yml
-.bundle
-coverage
-rdoc
-pkg
-*.gem
+*
+!*/
+
+!config.yml.example
+!bin/*
+
+!LICENSE
+!Gemfile
+!fifo.gemspec
+!.gitignore
 
 *~
 *.swp
