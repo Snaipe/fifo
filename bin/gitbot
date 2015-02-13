@@ -99,7 +99,7 @@ post "/github/push" do
   request.body.rewind
   push = JSON.parse request.body.read
 
-  repo = push["repository"]["name"]
+  repo = push["repository"]["full_name"]
   branch = push["ref"].gsub(/^refs\/heads\//,"")
 
   # sort commits by timestamp
@@ -122,6 +122,14 @@ post "/github/push" do
 
   include Cinch::Formatting
 
+  nb_commits = push["commits"].length
+  head = "%s: %s pushed %s commit%s to %s" %
+    [Format(:green, repo),
+     Format(:green, push["pusher"]["name"]),
+     Format(:orange, nb_commits), nb_commits == 1 ? '' : 's',
+     Format(:blue, branch)]
+  say repo, head
+
   # output first 3 commits
   push["commits"][0..2].each do |c|
     reply = "[%s/%s] %s - %s: %s <%s>" %
@@ -134,8 +142,8 @@ post "/github/push" do
     say repo, reply
   end
 
-  if push["commits"].length-2 > 0
-    say repo, " ... and #{push["commits"].length-2} more"
+  if nb_commits > 2
+    say repo, " ... and #{nb_commits - 3} more"
   end
 
   push.inspect
