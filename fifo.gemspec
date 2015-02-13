@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<sinatra>, ["~> 1.4.5"])
   s.add_runtime_dependency(%q<json>, [">= 0"])
   s.add_runtime_dependency(%q<unicode_utils>, ["~> 1.4.0"])
+  s.add_runtime_dependency(%q<monads>, [">= 0"])
 
   s.add_development_dependency(%q<bundler>, ["~> 1.8.0"])
 

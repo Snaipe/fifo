@@ -6,6 +6,10 @@ require "sinatra"
 require "yaml"
 require "json"
 require "unicode_utils/upcase"
+require "monads/optional"
+require "monads/many"
+
+include Monads
 
 config_file = ARGV.shift || "config.yml"
 if not File.exists? config_file
@@ -79,11 +83,17 @@ Thread.new do
   $bot.start
 end
 
-def say(repo,msg)
-  $config["irc"]["channels"].each do |chan|
-    unless $config["filters"] and $config["filters"].include? chan and not $config["filters"][chan].include? repo
-      $bot.Channel(chan).send msg
-    end
+def channels_for_repo(repo)
+  filters = Optional.new($config["filters"])
+
+  Many.new($config["irc"]["channels"]).
+    within { |chan| chan unless filters.include? chan and filters[chan].include? repo }.
+    values
+end
+
+def say(chans,msg)
+  chans.each do |chan|
+    $bot.Channel(chan).send msg
   end
 end
 
@@ -119,6 +129,8 @@ post "/github/push" do
     tb <=> ta
   end
 
+  chans = channels_for_repo repo
+
   nb_commits = push["commits"].length
   head = "%s: %s %spushed %s commit%s to %s <%s>" %
     [Format(:orange, repo),
@@ -127,7 +139,7 @@ post "/github/push" do
      Format(:orange, nb_commits.to_s), nb_commits == 1 ? '' : 's',
      Format(:blue, branch),
      Format(:red, push["compare"])]
-  say repo, head
+  say chans, head
 
   # output first 3 commits
   push["commits"][0..2].each do |c|
@@ -135,11 +147,11 @@ post "/github/push" do
       [Format(:red, c["id"][0..6]),
        Format(:green, c["author"]["name"]),
        Format(:orange, c["message"])]
-    say repo, reply
+    say chans, reply
   end
 
   if nb_commits > 2
-    say repo, " ... and #{nb_commits - 3} more"
+    say chans, " ... and #{nb_commits - 3} more"
   end
 
   ""
