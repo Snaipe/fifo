@@ -37,11 +37,11 @@ class Puns
   include Cinch::Plugin
 
   set :prefix, ''
-  match /^(.*\s)?(ch?ri|kh?ri|dit |di|dy)([[:alpha:]]+).*/i
+  match /.*(([ckq]h*r|dh*)[iy]+|dit )([[:alpha:]]+).*/i
 
-  def execute(m, unused, prefix, trail)
+  def execute(m, prefix, _, trail)
     if prefix and trail
-      if prefix.match /^(c|k)h?ri$/i
+      if prefix.match /^[ckq]h*r[iy]+$/i
         msg = UnicodeUtils.upcase(trail) + '!'
       else
         msg = UnicodeUtils.titlecase(trail) + '.'
