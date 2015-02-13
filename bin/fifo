@@ -6,6 +6,7 @@ require "sinatra"
 require "yaml"
 require "json"
 require "unicode_utils/upcase"
+require "unicode_utils/titlecase"
 require "monads/optional"
 require "monads/many"
 
@@ -36,14 +37,14 @@ class Puns
   include Cinch::Plugin
 
   set :prefix, ''
-  match /^(.*\s)?(cri|kri|dit |di)([[:alpha:]]+).*/i
+  match /^(.*\s)?(ch?ri|kh?ri|dit |di|dy)([[:alpha:]]+).*/i
 
   def execute(m, unused, prefix, trail)
     if prefix and trail
-      if prefix.match /^(cri|kri)$/i
+      if prefix.match /^(c|k)h?ri$/i
         msg = UnicodeUtils.upcase(trail) + '!'
       else
-        msg = trail
+        msg = UnicodeUtils.titlecase(trail) + '.'
       end
       m.reply(msg)
     end
