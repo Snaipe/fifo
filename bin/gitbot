@@ -5,6 +5,7 @@ require "cinch"
 require "sinatra"
 require "yaml"
 require "json"
+require "unicode_utils/upcase"
 
 config_file = ARGV.shift || "config.yml"
 if not File.exists? config_file
@@ -31,12 +32,12 @@ class Puns
   include Cinch::Plugin
 
   set :prefix, ''
-  match /^(.*\s)?(cri|kri|dit |di)(\w+).*/i
+  match /^(.*\s)?(cri|kri|dit |di)([[:alpha:]]+).*/i
 
   def execute(m, unused, prefix, trail)
     if prefix and trail
       if prefix.match /^(cri|kri)$/i
-        msg = trail.upcase + '!'
+        msg = UnicodeUtils.upcase(trail) + '!'
       else
         msg = trail
       end
