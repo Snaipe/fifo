@@ -27,7 +27,7 @@ class Quoi
   include Cinch::Plugin
 
   set :prefix, ''
-  match /\s*quoi[?!]*\s*/i
+  match /^\s*\.*\s*quoi\s*[.?!]*\s*$/i
   def execute(m)
     m.reply("ffeur")
   end
