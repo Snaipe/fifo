@@ -122,9 +122,10 @@ post "/github/push" do
   end
 
   nb_commits = push["commits"].length
-  head = "%s: %s pushed %s commit%s to %s <%s>" %
+  head = "%s: %s %spushed %s commit%s to %s <%s>" %
     [Format(:orange, repo),
      Format(:green, push["pusher"]["name"]),
+     push["forced"] ? "(forcefully) " : "",
      Format(:orange, nb_commits.to_s), nb_commits == 1 ? '' : 's',
      Format(:blue, branch),
      Format(:red, push["compare"])]
@@ -132,11 +133,9 @@ post "/github/push" do
 
   # output first 3 commits
   push["commits"][0..2].each do |c|
-    reply = "[%s/%s] %s - %s: %s" %
-      [Format(:blue, c["id"][0..6]),
-       Format(:blue, branch),
-       Format(:green, ""),
-       Format(:red, c["author"]["name"]),
+    reply = " + [%s] %s: %s" %
+      [Format(:red, c["id"][0..6]),
+       Format(:green, c["author"]["name"]),
        Format(:orange, c["message"])]
     say repo, reply
   end
