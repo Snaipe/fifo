@@ -40,7 +40,7 @@ class Puns
   include Cinch::Plugin
 
   set :prefix, ''
-  match /.*(([ckq]h*r|dh*)[iy]+|dit )([[:alpha:]]+).*/i
+  match /.*(([ckq]h*r|dh*)[iy]+|di[st][ \-])([[:alpha:]]{2,}).*/i
 
   def execute(m, prefix, _, trail)
     unless $config["mute"]
