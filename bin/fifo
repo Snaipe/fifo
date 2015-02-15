@@ -20,6 +20,7 @@ if not File.exists? config_file
 end
 
 $config = YAML.load_file config_file
+$config["mute"] = false
 
 include Cinch::Helpers
 
@@ -29,7 +30,9 @@ class Quoi
   set :prefix, ''
   match /^\s*\.*\s*quoi\s*[.?!]*\s*$/i
   def execute(m)
-    m.reply("ffeur")
+    unless $config["mute"]
+      m.reply("ffeur")
+    end
   end
 end
 
@@ -40,13 +43,15 @@ class Puns
   match /.*(([ckq]h*r|dh*)[iy]+|dit )([[:alpha:]]+).*/i
 
   def execute(m, prefix, _, trail)
-    if prefix and trail
-      if prefix.match /^[ckq]h*r[iy]+$/i
-        msg = UnicodeUtils.upcase(trail) + '!'
-      else
-        msg = UnicodeUtils.titlecase(trail) + '.'
+    unless $config["mute"]
+      if prefix and trail
+        if prefix.match /^[ckq]h*r[iy]+$/i
+          msg = UnicodeUtils.upcase(trail) + '!'
+        else
+          msg = UnicodeUtils.titlecase(trail) + '.'
+        end
+        m.reply(msg)
       end
-      m.reply(msg)
     end
   end
 end
@@ -58,11 +63,34 @@ class GTFO
   match /.*(ta gueule|la ferme|fuck you|connard|encul|foutre).*/i
 
   def execute(m, match)
-    ["Dear #{m.user},", " ",
-     "kindly go fuck yourself.", " ",
-     "Sincerely,", " ",
-     "-- ", "fifo"].each do |msg|
-      m.reply(msg)
+    unless $config["mute"]
+      ["Dear #{m.user},", " ",
+       "kindly go fuck yourself.", " ",
+       "Sincerely,", " ",
+       "-- ", "fifo"].each do |msg|
+         m.reply(msg)
+       end
+    end
+  end
+end
+
+class ShutUp
+  include Cinch::Plugin
+
+  match /(shut up|ta gueule|la ferme|mute)/i, :method => :mute
+  match /unmute/i,                            :method => :unmute
+
+  def mute(m, _)
+    unless $config["mute"]
+      m.reply("... :(")
+      $config["mute"] = true
+    end
+  end
+
+  def unmute(m)
+    if $config["mute"]
+      m.reply(":D")
+      $config["mute"] = false
     end
   end
 end
@@ -76,7 +104,7 @@ $bot = Cinch::Bot.new do
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
-    c.plugins.plugins = [Puns, Quoi, GTFO]
+    c.plugins.plugins = [Puns, Quoi, GTFO, ShutUp]
   end
 end
 
@@ -85,6 +113,10 @@ Thread.new do
 end
 
 def channels_for_repo(repo)
+  if $config["mute"]
+    return []
+  end
+
   filters = Optional.new($config["filters"])
 
   Many.new($config["irc"]["channels"]).
@@ -140,20 +172,20 @@ post "/github/push" do
      Format(:orange, nb_commits.to_s), nb_commits == 1 ? '' : 's',
      Format(:blue, branch),
      Format(:red, push["compare"])]
-  say chans, head
+    say chans, head
 
-  # output first 3 commits
-  push["commits"][0..2].each do |c|
-    reply = " + [%s] %s: %s" %
-      [Format(:red, c["id"][0..6]),
-       Format(:green, c["author"]["name"]),
-       Format(:orange, c["message"])]
-    say chans, reply
-  end
+    # output first 3 commits
+    push["commits"][0..2].each do |c|
+      reply = " + [%s] %s: %s" %
+        [Format(:red, c["id"][0..6]),
+         Format(:green, c["author"]["name"]),
+         Format(:orange, c["message"])]
+        say chans, reply
+    end
 
-  if nb_commits > 2
-    say chans, " ... and #{nb_commits - 3} more"
-  end
+    if nb_commits > 2
+      say chans, " ... and #{nb_commits - 3} more"
+    end
 
-  ""
+    ""
 end
