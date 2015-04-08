@@ -120,6 +120,7 @@ def channels_for_repo(repo)
   filters = Optional.new($config["filters"])
 
   Many.new($config["irc"]["channels"]).
+    within { |chan| chan.split(/\s+/, 2)[0] }.
     within { |chan| chan unless filters.include? chan and filters[chan].include? repo }.
     values
 end
