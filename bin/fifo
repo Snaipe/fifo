@@ -95,6 +95,16 @@ class ShutUp
   end
 end
 
+class Join
+  include Cinch::Plugin
+
+  match /join (#\w+)/
+
+  def execute(m, chan)
+    $bot.join(chan)
+  end
+end
+
 $bot = Cinch::Bot.new do
   configure do |c|
     c.nick = $config["irc"]["nick"]
@@ -104,7 +114,7 @@ $bot = Cinch::Bot.new do
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
     c.channels = $config["irc"]["channels"]
-    c.plugins.plugins = [Puns, Quoi, GTFO, ShutUp]
+    c.plugins.plugins = [Puns, Quoi, GTFO, ShutUp, Join]
   end
 end
 
