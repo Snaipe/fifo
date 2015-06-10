@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require "date"
+require "cinch"
+require "yaml"
+
+config_file = ARGV.shift || "config.yml"
+if not File.exists? config_file
+  puts "Can't find config file #{config_file}"
+  puts "Either create it or specify another config file with: #{File.basename $0} [filename]"
+  exit
+end
+
+$config = YAML.load_file config_file
+$config["mute"] = false
+
+include Cinch::Helpers
+
+class Sort
+  include Cinch::Plugin
+
+  set :prefix, ''
+  match /^(.*)$/
+
+  def execute(m, msg)
+    m.reply(msg.chars.sort.join)
+  end
+end
+
+$bot = Cinch::Bot.new do
+  configure do |c|
+    c.nick = "tri-fusion"
+    c.user = "tri-fusion"
+    c.realname = "tri-fusion"
+    c.password = ""
+    c.server = $config["irc"]["server"]
+    c.port = $config["irc"]["port"]
+    c.channels = $config["irc"]["channels"]
+    c.plugins.plugins = [Sort]
+  end
+end
+
+$bot.start
